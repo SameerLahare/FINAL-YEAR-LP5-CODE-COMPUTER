@@ -1,0 +1,149 @@
+import numpy as np
+import tensorflow as tf
+import matplotlib.pyplot as plt
+import keras
+
+
+
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.fashion_mnist.load_data()
+
+
+class_names = ['T_shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+
+
+print("Number of images in training set {}".format(x_train.shape))
+print("Number of labels in training set {}".format(y_train.shape))
+print("Number of images in test set {}".format(x_test.shape))
+print("Number of labels in test set {}".format(y_train.shape))
+
+
+
+plt.figure()
+plt.imshow(np.squeeze(x_train[220]))
+
+
+y_train[220]
+
+
+plt.figure(figsize=(10, 10))
+for i in range(15):
+    plt.subplot(5, 5, i+1)
+    plt.xticks([])
+    plt.yticks([])
+    plt.imshow(x_train[i], cmap=plt.cm.binary)
+    plt.xlabel(class_names[y_train[i]] if y_train[i] < len(class_names) else "Unknown")
+plt.show()
+
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Flatten, Dropout
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import TensorBoard
+
+
+cnn_model = Sequential()
+
+
+cnn_model.add(Conv2D(32, 3, 3, input_shape = (28, 28, 1), activation = 'relu'))
+
+
+
+cnn_model.add(MaxPooling2D(pool_size= (2, 2)))
+
+
+cnn_model.add(Flatten())
+
+cnn_model.add(Dense(32, activation = 'relu'))
+
+
+cnn_model.add(Dense(10, activation = 'sigmoid'))
+
+
+
+cnn_model.summary()
+
+
+
+cnn_model.compile(loss = 'sparse_categorical_crossentropy', optimizer = Adam(learning_rate = 0.001), metrics= ['accuracy'])
+
+
+
+history = cnn_model.fit(x_train, y_train, batch_size = 512, epochs = 5, verbose = 1, validation_data = (x_test, y_test))
+
+
+cnn_model.evaluate(x_test, y_test)
+
+probability_model = tf.keras.Sequential([cnn_model, tf.keras.layers.Softmax()])
+predictions = probability_model.predict(x_test)
+
+
+
+img = x_test[6]
+plt.imshow(img)
+
+
+y_predict = class_names[np.argmax(predictions[6])]
+y_predict
+
+
+
+
+y_actual = class_names[y_test[6]]
+y_actual
+
+
+img = x_test[0]
+plt.imshow(img)
+
+
+y_predict = class_names[np.argmax(predictions[0])]
+y_predict
+
+
+
+y_actual = class_names[y_test[0]]
+y_actual
+
+
+test_loss, test_accuracy = cnn_model.evaluate(x_train, y_train)
+
+
+
+print(test_accuracy)
+
+
+print(test_loss)
+
+
+
+history.history
+
+
+history.history.keys()
+
+
+plt.plot(history.history['accuracy'],label='Accuracy')
+plt.plot(history.history['val_accuracy'])
+plt.title("Accuracy vs Validation Accuracy")
+plt.xlabel("No. of epoch")
+plt.ylabel("Accuracy")
+plt.legend(['Train_acc', 'Val_acc'], loc='lower right')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
